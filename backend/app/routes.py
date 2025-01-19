@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify
 
-main = Blueprint("main", __name__)
+bp = Blueprint("main", __name__)
 
-@main.route("/")
-def home():
+@bp.route("/")
+def index():
     return jsonify({"message": "Welcome to the Surf App Backend!"})
