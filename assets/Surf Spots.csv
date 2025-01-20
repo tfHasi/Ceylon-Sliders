@@ -1,37 +1,37 @@
-﻿Surf Spots,Direction,Type,Experience
-Arugam Bay,Right,Point-break,All surfers
-Bennys,Left,Reef-coral,Experienced surfers
-Coral Garden,Right and left,Reef-rocky,Pros or kamikaze only…
-Dalawella,Right and left,Reef-coral,Experienced surfers
-Devils rock,Left,Reef-rocky,Experienced surfers
-"Dewata, Galle",Right and left,Point-break,All surfers
-Dewella (Unawatuna),Right and left,Reef-coral,All surfers
-Elephant rock,Right,Point-break,All surfers
-Gaza Strip,Left,Reef-rocky,Experienced surfers
-GD’s,Right and left,Beach-break,All surfers
-Hikkaduwa,Right and left,Reef-coral,All surfers
-Hiriketiya,Left,Point-break,All surfers
-Kingfisher,Right and left,Beach-break,Experienced surfers
-Koggala Lefts,Left,Reef-coral,Experienced surfers
-LAMANA POINT,Right and left,Reef-coral,Experienced surfers
-Local’s Point,Right and left,Reef-coral,Experienced surfers
-Madiha,Left,Reef-coral,Experienced surfers
-Main Point,Right,Reef-coral,Experienced surfers
-Matara,Right,Sand-bar,All surfers
-Midigama Left (market),Left,Point-break,All surfers
-Midigama Right,Right,Reef-rocky,Experienced surfers
-Mirissa,Right,Reef-coral,All surfers
-Okanda,Right,Point-break,Experienced surfers
-Owerkanda,Left,Reef-coral,All surfers
-Peanuts Farm,Right,Point-break,All surfers
-Plantations,Right and left,Reef-rocky,Experienced surfers
-Pottuvil Point,Right,Point-break,All surfers
-Rockside Induruwa,Right and left,Reef-rocky,All surfers
-South Beach,Right and left,Reef-rocky,All surfers
-Thalpe,Right and left,Reef-rocky,All surfers
-Thalyadi,Right and left,Reef-coral,All surfers
-The Rock,Right,Point-break,All surfers
-Unawatuna,Right,Reef-rocky,All surfers
-Weligama,Right and left,Beach-break,All surfers
-Whiskey Point,Right,Point-break,All surfers
-Lazy Left,Left,Reef-rocky,All surfers
+﻿Name,Direction,Type,Experience,Latitude,Longitude
+Arugam Bay,Right,Point-break,All surfers,6.84073903,81.83699875
+Bennys,Left,Reef-coral,Experienced surfers,,
+Coral Garden,Right and left,Reef-rocky,Pros or kamikaze only…,,
+Dalawella,Right and left,Reef-coral,Experienced surfers,,
+Devils rock,Left,Reef-rocky,Experienced surfers,,
+"Dewata, Galle",Right and left,Point-break,All surfers,,
+Dewella (Unawatuna),Right and left,Reef-coral,All surfers,,
+Elephant rock,Right,Point-break,All surfers,,
+Gaza Strip,Left,Reef-rocky,Experienced surfers,,
+GD’s,Right and left,Beach-break,All surfers,,
+Hikkaduwa,Right and left,Reef-coral,All surfers,,
+Hiriketiya,Left,Point-break,All surfers,,
+Kingfisher,Right and left,Beach-break,Experienced surfers,,
+Koggala Lefts,Left,Reef-coral,Experienced surfers,,
+LAMANA POINT,Right and left,Reef-coral,Experienced surfers,,
+Local’s Point,Right and left,Reef-coral,Experienced surfers,,
+Madiha,Left,Reef-coral,Experienced surfers,,
+Main Point,Right,Reef-coral,Experienced surfers,,
+Matara,Right,Sand-bar,All surfers,,
+Midigama Left (market),Left,Point-break,All surfers,,
+Midigama Right,Right,Reef-rocky,Experienced surfers,,
+Mirissa,Right,Reef-coral,All surfers,,
+Okanda,Right,Point-break,Experienced surfers,,
+Owerkanda,Left,Reef-coral,All surfers,,
+Peanuts Farm,Right,Point-break,All surfers,,
+Plantations,Right and left,Reef-rocky,Experienced surfers,,
+Pottuvil Point,Right,Point-break,All surfers,,
+Rockside Induruwa,Right and left,Reef-rocky,All surfers,,
+South Beach,Right and left,Reef-rocky,All surfers,,
+Thalpe,Right and left,Reef-rocky,All surfers,,
+Thalyadi,Right and left,Reef-coral,All surfers,,
+The Rock,Right,Point-break,All surfers,,
+Unawatuna,Right,Reef-rocky,All surfers,,
+Weligama,Right and left,Beach-break,All surfers,,
+Whiskey Point,Right,Point-break,All surfers,,
+Lazy Left,Left,Reef-rocky,All surfers,,
