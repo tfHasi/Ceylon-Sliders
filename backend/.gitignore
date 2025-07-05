@@ -3,12 +3,3 @@ __pycache__/
 .env
 *.pyc
 instance/
-
-# Ignore Jupyter Notebook checkpoints in all directories
-**/.ipynb_checkpoints/
-
-# Ignore Python cache files globally
-**/__pycache__/
-**/*.pyc
-**/*.pyo
-**/*.pyd
