@@ -1,5 +1,8 @@
 # Ignore Jupyter Notebook checkpoints in all directories
 **/.ipynb_checkpoints/
+data_stream-oper_stepType-accum.nc
+data_stream-oper_stepType-instant.nc
+data_stream-wave_stepType-instant.nc
 
 # Ignore Python cache files globally
 **/__pycache__/
