@@ -10,4 +10,6 @@ data_stream-wave_stepType-instant.nc
 **/*.pyo
 **/*.pyd
 .env
-venv/
+venv/\
+
+swan4151/
