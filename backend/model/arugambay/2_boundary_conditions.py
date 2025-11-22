@@ -6,7 +6,7 @@ from tensorflow.keras.models import load_model
 
 MODEL_PATH = "../convlstm_final.keras"
 META_PATH = "../model_metadata.pkl"
-DATA_PATH = "live_input.pkl"
+DATA_PATH = "../preprocessed_multiyear.pkl"
 OUTPUT_FILE = "arugam_boundary.bnd"
 
 BUOY_LAT_IDX = 8
