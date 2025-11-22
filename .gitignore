@@ -13,3 +13,13 @@ data_stream-wave_stepType-instant.nc
 venv/
 
 swan4151/
+swaninit
+swan.exe
+Errfile
+INPUT
+norm_end
+surf_data_2024.nc
+GEBCO_Arugambay.nc
+convlstm_final.keras
+model_metadata.pkl
+preprocessed_multiyear.pkl
