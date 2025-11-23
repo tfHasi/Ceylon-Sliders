@@ -4,13 +4,15 @@ import requests
 import sys
 import time
 from datetime import datetime
+import os
 
 HISTORY_CSV = "mirissa_virtual_bouy_data.csv"
 TARGET_LAT = 5.5
 TARGET_LON = 80.5
+URL = os.getenv("URL")
 
 def main():
-    url = "https://marine-api.open-meteo.com/v1/marine"
+    url = URL
     params = {
         "latitude": TARGET_LAT,
         "longitude": TARGET_LON,

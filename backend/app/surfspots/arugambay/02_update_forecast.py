@@ -3,14 +3,16 @@ import numpy as np
 import requests
 import sys
 import time
+import os
 from datetime import datetime
 
 HISTORY_CSV = "arugambay_virtual_bouy_data.csv"
 TARGET_LAT = 7.0
 TARGET_LON = 82.0
+URL = os.getenv("URL")
 
 def main():
-    url = "https://marine-api.open-meteo.com/v1/marine"
+    url = URL
     params = {
         "latitude": TARGET_LAT,
         "longitude": TARGET_LON,
