@@ -39,12 +39,6 @@ SPOTS = {
         "type": "Reef Break",
         "difficulty": "Advanced (Main Reef)",
         "best_wind": "North-East"
-    },
-    "Weligama": {
-        "path": "weligama/weligama_forecast.json",
-        "type": "Beach Break",
-        "difficulty": "Beginner Friendly",
-        "best_wind": "North"
     }
 }
 
@@ -108,10 +102,17 @@ if df is None:
     st.stop()
 
 # Clean Data
-df['time'] = pd.to_datetime(df['time'])
+df['time'] = pd.to_datetime(df['time'], unit='ms')
+
+# FIX: Convert UTC to Sri Lanka Time (+5:30)
+df['time'] = df['time'] + pd.Timedelta(hours=5, minutes=30)
+
+# FIX: Patch initial zero direction artifact
+if len(df) > 1 and df.iloc[0]['dir'] == 0:
+    df.loc[0, 'dir'] = df.loc[1, 'dir']
 
 # --- A. CURRENT CONDITIONS METRIC ---
-now = datetime.utcnow()
+now = datetime.utcnow() + pd.Timedelta(hours=5, minutes=30)
 # Find row closest to "Now"
 current_row = df.iloc[0]
 for i, row in df.iterrows():
@@ -197,38 +198,53 @@ if prompt := st.chat_input("Is it good for beginners tomorrow?"):
                 from groq import Groq
                 client = Groq(api_key=GROQ_API_KEY)
                 
-                # 1. PREPARE CONTEXT (Optimized)
-                # Only send Day/Time/Height/Quality to save tokens
+                # 1. PREPARE GLOBAL CONTEXT (All Spots)
+                all_spots_info = []
+                now_sl = datetime.utcnow() + pd.Timedelta(hours=5, minutes=30)
+                
+                for s_name, s_config in SPOTS.items():
+                    try:
+                        s_df = load_forecast(s_config['path'])
+                        if s_df is not None:
+                            s_df['time'] = pd.to_datetime(s_df['time'], unit='ms') + pd.Timedelta(hours=5, minutes=30)
+                            # Get current condition
+                            future = s_df[s_df['time'] >= now_sl]
+                            if not future.empty:
+                                curr = future.iloc[0]
+                                all_spots_info.append(
+                                    f"- {s_name}: {curr['surf_ft']:.1f}ft ({curr['quality']}) | {s_config['difficulty']} | {s_config['type']}"
+                                )
+                    except Exception:
+                        continue
+                
+                global_context = "\n".join(all_spots_info)
+
+                # 2. PREPARE LOCAL CONTEXT (Detailed for Selected Spot)
                 context_df = df[['time', 'surf_ft', 'quality']].copy()
-                # Add a column for "Is Night?" to help the AI
                 context_df['hour'] = context_df['time'].dt.hour
                 context_df['is_night'] = context_df['hour'].apply(lambda h: "YES" if (h >= 18 or h <= 5) else "NO")
-                
                 context_df['time'] = context_df['time'].dt.strftime('%A %H:%M')
-                context_str = context_df.to_string(index=False)
+                local_context_str = context_df.to_string(index=False)
                 
-                # 2. SYSTEM PROMPT WITH GUARDRAILS
+                # 3. SYSTEM PROMPT (Global Awareness)
                 system_prompt = f"""
-                You are an expert surf guide for **{selected_spot_name}** in Sri Lanka.
+                You are an expert surf guide for Sri Lanka. You have real-time data for multiple spots.
                 
-                SPOT PROFILE:
-                - Type: {current_spot_config['type']}
-                - Difficulty Level: {current_spot_config['difficulty']}
+                CURRENT CONDITIONS (ALL SPOTS):
+                {global_context}
                 
-                FORECAST DATA (Next 7 Days):
-                {context_str}
+                DETAILED FORECAST FOR SELECTED SPOT ({selected_spot_name}):
+                {local_context_str}
                 
-                STRICT RULES FOR ANSWERING:
-                1. **NIGHT TIME:** Never recommend surfing between 18:00 (6 PM) and 06:00 (6 AM). If the data shows good waves at night, ignore them or explicitly say "It's dark".
-                2. **BEGINNERS:** - If the User asks about beginners, ONLY suggest times where height is **2.0ft to 4.0ft**.
-                   - If height > 5ft, WARN the user it is too big for beginners.
-                   - If this spot is "{selected_spot_name}" (Reef), warn beginners about rocks.
-                3. **EXPERTS:** If height > 6ft, call it "Pumping" or "Heavy".
-                4. **FLAT:** If height < 1.5ft, tell them to bring a longboard or go snorkeling.
+                STRICT RULES:
+                1. **GLOBAL AWARENESS:** If the user asks "Where should I surf?", compare spots based on their skill level and current conditions.
+                2. **BEGINNERS:** Recommend spots with 2-4ft waves and "Beginner" or "All Levels" difficulty. Warn against "Advanced" spots if they are big.
+                3. **NIGHT TIME:** No surfing 6PM-6AM.
+                4. **SAFETY:** Always mention reef/rock hazards for Reef breaks.
                 
                 User Question: "{prompt}"
                 
-                Answer concisely using the data provided. Suggest specific Day/Times. Use surfer slang (stoked, glassy, pumping).
+                Answer concisely. If recommending other spots, mention why (e.g., "Mirissa is better for learning today").
                 """
                 
                 completion = client.chat.completions.create(
