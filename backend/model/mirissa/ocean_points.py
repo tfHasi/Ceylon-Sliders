@@ -35,15 +35,6 @@ def main():
     ).reshape(shape_2d)
 
     ocean_mask = shts_map_meters > 0.01
-
-    print(f"\n GRID VISUALIZATION")
-    print("   X = Land,  . = Ocean")
-
-    header = "      "
-    for lon in lons:
-        header += f"{lon:.2f} "
-    print(header)
-
     valid_points = []
 
     for i, lat in enumerate(lats):
@@ -63,7 +54,6 @@ def main():
                 })
             else:
                 row_str += "  X   "
-        print(row_str)
 
     print("\n\n CANDIDATE VIRTUAL BUOYS (Sorted by Distance)")
     print("-" * 80)
