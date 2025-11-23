@@ -7,7 +7,7 @@ BOUNDARY_FILE = "arugam_boundary.bnd"
 SWAN_SURF_TBL = "surf_forecast.tbl"
 SWAN_DEEP_TBL = "deep_forecast.tbl"
 
-SURF_FACTOR = 0.95 * 1.3 
+SURF_FACTOR = 1 
 
 def load_boundary_data():
     if not os.path.exists(BOUNDARY_FILE):

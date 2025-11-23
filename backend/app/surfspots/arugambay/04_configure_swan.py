@@ -1,13 +1,11 @@
 import pandas as pd
 import shutil
 
-# CONFIGURATION
 TPAR_FILE = "arugam_boundary.bnd"
 TPAR_COPY = "arugam_boundary_copy.bnd" 
 INPUT_FILE = "INPUT"
 BATHY_FILE = "arugam.bot"
 
-# GRID SETTINGS
 XPC, YPC = 81.702083, 6.702083
 XLEN, YLEN = 0.2958, 0.2958
 MX, MY = 71, 71
@@ -23,22 +21,17 @@ def get_sim_times(tpar_file):
         return start, end
     except Exception as e:
         print(f"Error reading TPAR: {e}")
-        return "20250101.0000", "20250102.0000" # Fallback
+        return "Error" # Fallback
 
 def main():
-    print("\n CONFIGURING SWAN INPUT (SAFE MODE)...")
-    
-    # 1. File Locking Hack
     try:
         shutil.copy(TPAR_FILE, TPAR_COPY)
     except: pass
 
-    # 2. Get Simulation Time
     start_time, end_time = get_sim_times(TPAR_FILE)
     print(f"   Simulation Range: {start_time} -> {end_time}")
 
-    # 3. Write SWAN Script
-    swan_code = f"""$ SWAN INPUT: ARUGAM BAY (SAFE MODE)
+    swan_code = f"""$ SWAN INPUT: ARUGAM BAY (7 DAY / 3 HR)
 PROJECT 'ARUGAM' '1'
 MODE NONSTATIONARY
 COORDINATES SPHERICAL
@@ -54,12 +47,8 @@ BOUNDSPEC SIDE EAST CONSTANT FILE '{TPAR_FILE}'
 BOUNDSPEC SIDE SOUTH CONSTANT FILE '{TPAR_COPY}'
 
 $ 3. PHYSICS
-$ Refraction is ON by default (Do not type 'REFRACTION ON')
-$ Breaking is ON (Constant values)
 BREAKING CON 1.0 0.73
 FRICTION JONSWAP CONSTANT 0.067
-
-$ Turn OFF wind-dependent terms (Since we have 0 wind)
 OFF WCAP
 OFF QUAD
 
@@ -72,9 +61,10 @@ POINTS 'DEEP' 81.9979 6.9438
 POINTS 'MID'  81.9000 6.8400
 POINTS 'SURF' 81.8450 6.8400
 
-TABLE 'DEEP' HEAD 'deep_forecast.tbl' HS TPS DIR DEPTH QB OUTPUT {start_time} 1 HR
-TABLE 'MID'  HEAD 'mid_forecast.tbl'  HS TPS DIR DEPTH QB OUTPUT {start_time} 1 HR
-TABLE 'SURF' HEAD 'surf_forecast.tbl' HS TPS DIR DEPTH QB OUTPUT {start_time} 1 HR
+$ CHANGE: Output every 3 Hours now
+TABLE 'DEEP' HEAD 'deep_forecast.tbl' HS TPS DIR DEPTH QB OUTPUT {start_time} 3 HR
+TABLE 'MID'  HEAD 'mid_forecast.tbl'  HS TPS DIR DEPTH QB OUTPUT {start_time} 3 HR
+TABLE 'SURF' HEAD 'surf_forecast.tbl' HS TPS DIR DEPTH QB OUTPUT {start_time} 3 HR
 
 $ 6. RUN
 COMPUTE {start_time} 15 MIN {end_time}
