@@ -2,17 +2,33 @@ import pandas as pd
 import numpy as np
 import requests
 import sys
-import time
 import os
 from datetime import datetime
 
 HISTORY_CSV = "arugambay_virtual_bouy_data.csv"
 TARGET_LAT = 7.0
 TARGET_LON = 82.0
-URL = os.getenv("URL")
+URL = os.getenv("URL", "https://marine-api.open-meteo.com/v1/marine")
+
+def get_climatology_means(df_hist, target_date):
+    matches = df_hist[
+        (df_hist['time'].dt.month == target_date.month) & 
+        (df_hist['time'].dt.day == target_date.day) &
+        (df_hist['time'].dt.hour == target_date.hour)
+    ]
+    
+    if not matches.empty:
+        return matches['u10'].mean(), matches['v10'].mean(), matches['msl'].mean()
+    matches_daily = df_hist[
+        (df_hist['time'].dt.month == target_date.month) & 
+        (df_hist['time'].dt.day == target_date.day)
+    ]
+    
+    if not matches_daily.empty:
+        return matches_daily['u10'].mean(), matches_daily['v10'].mean(), matches_daily['msl'].mean()
+    return df_hist['u10'].mean(), df_hist['v10'].mean(), df_hist['msl'].mean()
 
 def main():
-    url = URL
     params = {
         "latitude": TARGET_LAT,
         "longitude": TARGET_LON,
@@ -22,11 +38,13 @@ def main():
         "timezone": "UTC"
     }
     try:
-        r = requests.get(url, params=params, timeout=10)
-        data = r.json()
+        r = requests.get(URL, params=params, timeout=10)
+        data = r.json() 
         if "error" in data and data["error"]:
+            print(f" API Error: {data.get('reason', 'Unknown')}")
             sys.exit(1)     
         if "hourly" not in data:
+            print(" Invalid API Response")
             sys.exit(1)
         df_live = pd.DataFrame(data['hourly'])
         df_live['time'] = pd.to_datetime(df_live['time'])
@@ -35,29 +53,42 @@ def main():
             'swell_wave_period': 'mpts',
             'swell_wave_direction': 'mdts'
         })
-        df_live['u10'] = 0.0
-        df_live['v10'] = 0.0
-        df_live['msl'] = 0.0
-        df_live = df_live[['time', 'u10', 'v10', 'msl', 'shts', 'mpts', 'mdts']]
-        
+
+        df_live = df_live[df_live['time'].dt.hour.isin([0, 6, 12, 18])].copy()
+        print(f"   Downsampled to {len(df_live)} rows (6H intervals).")
+
         try:
             df_hist = pd.read_csv(HISTORY_CSV)
             df_hist['time'] = pd.to_datetime(df_hist['time'])
-            last_hist = df_hist['time'].iloc[-1]
-            df_new = df_live[df_live['time'] > last_hist]
-            
-            if df_new.empty:
-                print(f"   No new data found (Latest data: {df_live['time'].iloc[-1]}).")
-                full_df = df_hist
-            else:
-                print(f"   Appending {len(df_new)} new rows...")
-                full_df = pd.concat([df_hist, df_new]).sort_values('time').reset_index(drop=True)
-                full_df.to_csv(HISTORY_CSV, index=False)
-                print(f" Forecast Updated. CSV now ends at: {full_df['time'].iloc[-1]}")
-                
         except FileNotFoundError:
-            print(" History file missing.")
-            df_live.to_csv(HISTORY_CSV, index=False)
+            print(" Critical: History file missing. Cannot perform Climatology Imputation.")
+            sys.exit(1)
+
+        print("   Imputing missing wind/pressure (Hour-Specific)...")
+        
+        u10_list, v10_list, msl_list = [], [], []
+        
+        for _, row in df_live.iterrows():
+            u, v, msl = get_climatology_means(df_hist, row['time'])
+            u10_list.append(u)
+            v10_list.append(v)
+            msl_list.append(msl)
+            
+        df_live['u10'] = u10_list
+        df_live['v10'] = v10_list
+        df_live['msl'] = msl_list
+        
+        df_live = df_live[['time', 'u10', 'v10', 'msl', 'shts', 'mpts', 'mdts']]
+        last_hist_time = df_hist['time'].iloc[-1]
+        df_new = df_live[df_live['time'] > last_hist_time]
+        
+        if df_new.empty:
+            print(f" No new data found (History is up to date: {last_hist_time}).")
+        else:
+            print(f"   Appending {len(df_new)} new rows...")
+            full_df = pd.concat([df_hist, df_new]).sort_values('time').reset_index(drop=True)
+            full_df.to_csv(HISTORY_CSV, index=False)
+            print(f" Forecast Updated. CSV now ends at: {full_df['time'].iloc[-1]}")
 
     except Exception as e:
         print(f" Critical Error: {e}")
