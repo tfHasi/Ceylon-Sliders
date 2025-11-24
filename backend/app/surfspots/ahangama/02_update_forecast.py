@@ -8,7 +8,7 @@ from datetime import datetime
 HISTORY_CSV = "ahangama_virtual_bouy_data.csv"
 TARGET_LAT = 6.0
 TARGET_LON = 80.0
-URL = os.getenv("URL")
+URL = os.getenv("URL", "https://marine-api.open-meteo.com/v1/marine")
 
 def get_climatology_means(df_hist, target_date):
     matches = df_hist[

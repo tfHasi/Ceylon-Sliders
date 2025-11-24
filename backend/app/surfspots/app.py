@@ -77,7 +77,6 @@ def load_forecast(json_path):
         data = json.load(f)
     return pd.DataFrame(data)
 
-# Load data for the SELECTED spot
 df = load_forecast(current_spot_config['path'])
 
 st.title(f"{selected_spot_name} 7-Day Forecast")
@@ -87,7 +86,6 @@ if df is None:
     st.info("Tip: Ensure you have run the pipeline for this specific spot folder.")
     st.stop()
 
-# Clean Data
 df['time'] = pd.to_datetime(df['time'], unit='ms')
 
 # FIX: Convert UTC to Sri Lanka Time (+5:30)
@@ -97,7 +95,6 @@ df['time'] = df['time'] + pd.Timedelta(hours=5, minutes=30)
 if len(df) > 1 and df.iloc[0]['dir'] == 0:
     df.loc[0, 'dir'] = df.loc[1, 'dir']
 
-# --- A. CURRENT CONDITIONS METRIC ---
 now = datetime.utcnow() + pd.Timedelta(hours=5, minutes=30)
 # Find row closest to "Now"
 current_row = df.iloc[0]
@@ -125,7 +122,6 @@ with col4:
 
 st.divider()
 
-# --- B. CHARTS & TABLES ---
 col_chart, col_data = st.columns([2, 1])
 
 with col_chart:
@@ -133,13 +129,10 @@ with col_chart:
     
     fig = px.line(df, x='time', y='surf_ft', markers=True, title="Predicted Face Height (ft)")
     
-    # Quality Bands
     fig.add_hrect(y0=0, y1=2, line_width=0, fillcolor="red", opacity=0.1, annotation_text="Flat")
     fig.add_hrect(y0=2, y1=4, line_width=0, fillcolor="yellow", opacity=0.1, annotation_text="Fun")
     fig.add_hrect(y0=4, y1=8, line_width=0, fillcolor="green", opacity=0.1, annotation_text="Good")
     fig.add_hrect(y0=8, y1=15, line_width=0, fillcolor="purple", opacity=0.1, annotation_text="Heavy")
-    
-    # X-Axis Formatting (Daily Ticks)
     fig.update_xaxes(dtick="D1", tickformat="%b %d")
     fig.update_layout(height=400)
     
@@ -160,12 +153,10 @@ st.caption(f"Ask about conditions at {selected_spot_name}. I know about skill le
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# Display History
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-# Chat Input
 if prompt := st.chat_input("Is it good for beginners tomorrow?"):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
@@ -182,7 +173,6 @@ if prompt := st.chat_input("Is it good for beginners tomorrow?"):
                 from groq import Groq
                 client = Groq(api_key=GROQ_API_KEY)
                 
-                # 1. PREPARE GLOBAL CONTEXT (All Spots)
                 all_spots_info = []
                 now_sl = datetime.utcnow() + pd.Timedelta(hours=5, minutes=30)
                 
@@ -202,15 +192,12 @@ if prompt := st.chat_input("Is it good for beginners tomorrow?"):
                         continue
                 
                 global_context = "\n".join(all_spots_info)
-
-                # 2. PREPARE LOCAL CONTEXT (Detailed for Selected Spot)
                 context_df = df[['time', 'surf_ft', 'quality']].copy()
                 context_df['hour'] = context_df['time'].dt.hour
                 context_df['is_night'] = context_df['hour'].apply(lambda h: "YES" if (h >= 18 or h <= 5) else "NO")
                 context_df['time'] = context_df['time'].dt.strftime('%A %H:%M')
                 local_context_str = context_df.to_string(index=False)
                 
-                # 3. SYSTEM PROMPT (Global Awareness)
                 system_prompt = f"""
                 You are an expert surf guide for Sri Lanka. You have real-time data for multiple spots.
                 
