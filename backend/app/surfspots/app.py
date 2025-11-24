@@ -6,15 +6,10 @@ from datetime import datetime
 import os
 from dotenv import load_dotenv
 
-# 1. LOAD ENVIRONMENT VARIABLES
 load_dotenv()
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-
-# 2. APP CONFIGURATION
 st.set_page_config(page_title="Ceylon Surfers AI", page_icon="🌊", layout="wide")
 
-# 3. SURF SPOT CONFIGURATION (The Scalability Layer)
-# Map the display name to the folder/file structure and static characteristics
 SPOTS = {
     "Arugam Bay": {
         "path": "arugambay/arugambay_forecast.json",
@@ -42,11 +37,8 @@ SPOTS = {
     }
 }
 
-# =======================================================
-# 4. SIDEBAR SELECTION & INFO
-# =======================================================
 with st.sidebar:
-    st.title("🌊 Ceylon Surfers")
+    st.title(" Ceylon Surfers")
     st.markdown("### Select Surf Spot")
     
     # PAGINATION: The Dropdown
@@ -56,7 +48,7 @@ with st.sidebar:
     st.divider()
     
     # SPOT INFO CARD
-    st.subheader("📍 Spot Profile")
+    st.subheader(" Spot Profile")
     st.write(f"**Type:** {current_spot_config['type']}")
     st.write(f"**Level:** {current_spot_config['difficulty']}")
     st.write(f"**Ideal Wind:** {current_spot_config['best_wind']}")
@@ -71,9 +63,6 @@ with st.sidebar:
         """
     )
 
-# =======================================================
-# 5. DATA LOADING (Dynamic)
-# =======================================================
 @st.cache_data(ttl=3600) 
 def load_forecast(json_path):
     # Handle relative paths safely
@@ -91,13 +80,10 @@ def load_forecast(json_path):
 # Load data for the SELECTED spot
 df = load_forecast(current_spot_config['path'])
 
-# =======================================================
-# 6. MAIN DASHBOARD UI
-# =======================================================
 st.title(f"{selected_spot_name} 7-Day Forecast")
 
 if df is None:
-    st.error(f"⚠️ Data not found for {selected_spot_name}. Expected path: {current_spot_config['path']}")
+    st.error(f" Data not found for {selected_spot_name}. Expected path: {current_spot_config['path']}")
     st.info("Tip: Ensure you have run the pipeline for this specific spot folder.")
     st.stop()
 
@@ -166,11 +152,9 @@ with col_data:
     display_df.columns = ['Time', 'Height (ft)', 'Rating', 'Dir']
     st.dataframe(display_df, hide_index=True, height=400)
 
-# =======================================================
-# 7. AI SURF GUIDE (Guardrails Enabled)
-# =======================================================
+
 st.divider()
-st.subheader(f"🤖 AI Guide: {selected_spot_name}")
+st.subheader(f" AI Guide: {selected_spot_name}")
 st.caption(f"Ask about conditions at {selected_spot_name}. I know about skill levels and timing.")
 
 if "messages" not in st.session_state:
@@ -191,7 +175,7 @@ if prompt := st.chat_input("Is it good for beginners tomorrow?"):
         message_placeholder = st.empty()
         
         if not GROQ_API_KEY:
-            response = "⚠️ AI is offline. Please set GROQ_API_KEY in .env file."
+            response = " AI is offline. Please set GROQ_API_KEY in .env file."
             message_placeholder.markdown(response)
         else:
             try:
